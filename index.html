@@ -3,328 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noteify - Note Taking App</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Noteify</title>
     <style>
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f9f9f9; /* Light mode background */
-            color: #333; /* Light mode text color */
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.dark-mode {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
             background-color: #333;
             color: #f9f9f9;
         }
-
-        .sidebar {
-            width: 250px;
-            background: #fff;
-            border-right: 1px solid #e0e0e0;
-            transition: width 0.3s;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .sidebar.collapsed {
-            width: 50px; /* Collapsed width */
-        }
-
-        .sidebar h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-
-        .noteList {
-            list-style-type: none;
-            padding: 0;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .noteList li {
-            background: #f0f0f0;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .noteList li:hover {
-            background: #e0e0e0;
-        }
-
-        .container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
         h1 {
-            font-size: 2em;
-            margin: 0 0 20px;
+            text-align: center;
         }
-
-        input[type="text"] {
+        #noteInput {
             width: 100%;
             padding: 10px;
-            font-size: 1.5em;
             margin-bottom: 10px;
-            border: 1px solid rgba(224, 224, 224, 0.5);
-            border-radius: 8px;
-        }
-
-        textarea {
-            width: 100%;
-            height: calc(100vh - 200px); /* Adjust height for the textbox */
-            background: transparent;
-            color: inherit; /* Inherit color from body */
-            border: 1px solid rgba(224, 224, 224, 0.5);
-            border-radius: 8px;
-            padding: 10px;
-            resize: none; /* Prevent resizing */
-            font-size: 1em;
-            overflow-y: auto; /* Allow scrolling */
-        }
-
-        textarea:focus {
-            outline: none; 
-            border-color: #007bff;
-        }
-
-        body.dark-mode textarea {
-            background: #444;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            height: 50px;
+            resize: none;
+            background-color: #444;
             color: #f9f9f9;
-            border-color: rgba(255, 255, 255, 0.2);
         }
-
-        textarea::placeholder {
-            color: rgba(51, 51, 51, 0.5);
-        }
-
-        body.dark-mode textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .icon-btn {
-            margin-top: 10px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: #007bff;
-            transition: color 0.3s;
-        }
-
-        .icon-btn:hover {
-            color: #0056b3;
-        }
-
-        .settings-icon {
-            font-size: 24px;
-            color: #333;
-            cursor: pointer;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-        }
-
-        .settings-menu {
-            display: none;
-            position: fixed;
-            bottom: 70px;
-            right: 20px;
-            background: #fff;
+        #addNote {
+            width: 100%;
             padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .settings-menu.visible {
-            display: block;
-        }
-
-        .collapse-icon {
-            font-size: 24px;
-            color: #333;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+        }
+        #addNote:hover {
+            background-color: #45a049;
+        }
+        #notesContainer {
+            margin-top: 20px;
+        }
+        .note {
+            background-color: #444;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+            cursor: pointer;
+        }
+        .delete {
             position: absolute;
-            top: 20px;
-            right: 0;
-        }
-
-        .theme-switcher {
-            margin-top: 10px;
-        }
-
-        .theme-switcher label {
-            margin-right: 10px;
-        }
-
-        .narrow-interface {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .narrow-interface input {
-            margin-left: 5px;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #aaa;
-            border-radius: 10px;
-        }
-
-        body.dark-mode ::-webkit-scrollbar-thumb {
-            background-color: #666;
+            top: 5px;
+            right: 5px;
+            color: red;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar" id="sidebar">
-        <i class="fas fa-arrow-left collapse-icon" id="collapseIcon" title="Collapse Sidebar"></i>
-        <h2>All Notes</h2>
-        <ul id="notesList" class="noteList"></ul>
-    </div>
 
-    <div class="container">
-        <h1>Notes</h1>
-        <input type="text" id="noteTitle" placeholder="Note Title" />
-        <textarea id="noteInput" placeholder="Write your note here..."></textarea>
-        <div>
-            <button class="icon-btn" id="newNoteBtn"><i class="fas fa-plus"></i></button>
-            <button class="icon-btn" id="deleteNoteBtn" disabled><i class="fas fa-trash"></i></button>
-        </div>
-    </div>
-
-    <i class="fas fa-cog settings-icon" title="Settings" id="settingsIcon"></i>
-    <div class="settings-menu" id="settingsMenu">
-        <p>Settings Menu</p>
-        <div class="theme-switcher">
-            <label for="darkModeCheckbox">Dark Mode</label>
-            <input type="checkbox" id="darkModeCheckbox"> 
-        </div>
-        <div class="narrow-interface">
-            Enable Narrow Interface
-            <input type="checkbox" id="narrowCheckbox"> 
-        </div>
-        <button class="icon-btn" id="exportBtn">Export All Notes</button>
-        <p>Shortcut: Ctrl + ,</p>
-    </div>
+    <h1>Noteify</h1>
+    <textarea id="noteInput" placeholder="Write your note here..."></textarea>
+    <button id="addNote">Add Note</button>
+    
+    <div id="notesContainer"></div>
 
     <script>
-        let editingNote = null;
-        const sidebar = document.getElementById('sidebar');
-        const notesList = document.getElementById('notesList');
+        const notesContainer = document.getElementById('notesContainer');
         const noteInput = document.getElementById('noteInput');
-        const noteTitle = document.getElementById('noteTitle');
-        let isCollapsed = false;
 
+        // Load notes from local storage
         const loadNotes = () => {
             const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            notesList.innerHTML = '';
+            notes.forEach(note => createNoteElement(note));
+        };
 
-            notes.forEach(note => {
-                addNoteToList(note);
+        // Create note element
+        const createNoteElement = (noteText) => {
+            const noteDiv = document.createElement('div');
+            noteDiv.classList.add('note');
+
+            // Display only the first line
+            const firstLine = noteText.split('\n')[0];
+            noteDiv.innerHTML = `<span>${firstLine}</span><span class="delete">x</span>`;
+
+            notesContainer.appendChild(noteDiv);
+
+            // Delete button functionality
+            noteDiv.querySelector('.delete').addEventListener('click', function(event) {
+                event.stopPropagation();
+                deleteNote(noteText);
+                notesContainer.removeChild(noteDiv);
+            });
+
+            // Click to open full note in the editor
+            noteDiv.addEventListener('click', function() {
+                noteInput.value = noteText;
             });
         };
 
-        const saveNotes = () => {
-            const notes = [];
-            document.querySelectorAll('#notesList li').forEach(li => {
-                notes.push({ title: li.dataset.title, content: li.textContent.trim() });
-            });
-            localStorage.setItem('notes', JSON.stringify(notes));
-        };
-
-        const addNoteToList = (note) => {
-            const li = document.createElement('li');
-            li.textContent = note.content;
-            li.dataset.title = note.title;
-
-            li.addEventListener('click', function() {
-                noteTitle.value = note.title;
-                noteInput.value = note.content;
-                editingNote = li;
-                document.getElementById('deleteNoteBtn').disabled = false; // Enable delete button
-            });
-
-            notesList.appendChild(li);
-        };
-
-        const autoSave = () => {
-            if (editingNote) {
-                editingNote.textContent = noteInput.value; // Update existing note
-                editingNote.dataset.title = noteTitle.value; // Update title
-                saveNotes();
-            }
-        };
-
-        noteInput.addEventListener('input', autoSave);
-
-        document.getElementById('newNoteBtn').addEventListener('click', function() {
-            const newNote = { title: noteTitle.value, content: noteInput.value };
-            addNoteToList(newNote);
-            noteTitle.value = '';
-            noteInput.value = '';
-            editingNote = null;
-            document.getElementById('deleteNoteBtn').disabled = true; // Disable delete button
-            saveNotes();
-        });
-
-        document.getElementById('deleteNoteBtn').addEventListener('click', function() {
-            if (editingNote) {
-                editingNote.remove();
-                editingNote = null;
-                noteTitle.value = '';
-                noteInput.value = '';
-                document.getElementById('deleteNoteBtn').disabled = true; // Disable delete button
-                saveNotes();
-            }
-        });
-
-        document.getElementById('settingsIcon').addEventListener('click', function() {
-            document.getElementById('settingsMenu').classList.toggle('visible');
-        });
-
-        document.getElementById('darkModeCheckbox').addEventListener('change', function() {
-            document.body.classList.toggle('dark-mode');
-        });
-
-        document.getElementById('narrowCheckbox').addEventListener('change', function() {
-            document.body.classList.toggle('narrow-interface-active', this.checked);
-        });
-
-        document.getElementById('exportBtn').addEventListener('click', function() {
+        // Delete note from local storage
+        const deleteNote = (noteText) => {
             const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'notes.json';
-            a.click();
-            URL.revokeObjectURL(url);
+            const updatedNotes = notes.filter(note => note !== noteText);
+            localStorage.setItem('notes', JSON.stringify(updatedNotes));
+        };
+
+        // Save or update note
+        document.getElementById('addNote').addEventListener('click', function() {
+            const noteText = noteInput.value.trim();
+            if (noteText) {
+                const notes = JSON.parse(localStorage.getItem('notes')) || [];
+                const firstLine = noteText.split('\n')[0];
+                const existingNoteIndex = notes.findIndex(note => note.split('\n')[0] === firstLine);
+
+                if (existingNoteIndex > -1) {
+                    // Update existing note
+                    notes[existingNoteIndex] = noteText;
+                } else {
+                    // Add new note
+                    notes.push(noteText);
+                }
+
+                localStorage.setItem('notes', JSON.stringify(notes));
+                notesContainer.innerHTML = ''; // Clear notes display
+                loadNotes(); // Reload notes
+                noteInput.value = ''; // Clear input field
+            }
         });
 
-        document.getElementById('collapseIcon').addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            isCollapsed = !isCollapsed;
-        });
-
-        window.onload = loadNotes;
+        // Initial load of notes
+        loadNotes();
     </script>
+    
 </body>
 </html>
